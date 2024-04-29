@@ -14,24 +14,31 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
 
         public async Task ConvertLogs()
         {
-            HeadMount();
-
-            (var uri, var targetPath) = Input();
-
-            var response = await _consumeAwsS3.GetLogMinhaCdn(uri);
-
-            var newFormattedText = ConvertToAgoraFormat(response);
-
-            var filePath = WriteFile(newFormattedText, targetPath);
-
-            if (filePath.Contains(targetPath))
+            try
             {
-                Console.WriteLine($"\n\nO arquivo foi salvo em {Path.GetFullPath(filePath)}");
+                HeadMount();
+
+                (var uri, var targetPath) = Input();
+
+                var response = await _consumeAwsS3.GetLogMinhaCdn(uri);
+
+                var newFormattedText = ConvertToAgoraFormat(response);
+
+                var filePath = WriteFile(newFormattedText, targetPath);
+
+                if (filePath.Contains(targetPath))
+                {
+                    Console.WriteLine($"\n\nO arquivo foi salvo em {Path.GetFullPath(filePath)}");
+                }
+                else
+                {
+                    Console.WriteLine("\n\nNão foi possível localizar o caminho informado." +
+                                        $" Contudo seu arquivo foi salvo em {Path.GetFullPath(filePath)}");
+                }
             }
-            else
+            catch (Exception)
             {
-                Console.WriteLine("\n\nNão foi possível localizar o caminho informado." +
-                                    $" Contudo seu arquivo foi salvo em {Path.GetFullPath(filePath)}");
+                throw;
             }
         }
 
@@ -66,7 +73,7 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
                 Console.WriteLine("\n\n * É necessário informar um comando válido e pressionar \"ENTER\" para prosseguir.\n" +
                     "   Verifique a primeira instrução informada.\n");
                 input = Console.ReadLine() ?? "";
-                
+
                 inputSplitted = input.Split(" ");
             }
 
@@ -75,59 +82,87 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
 
         private static string WriteFile(string newFormattedText, string targetPath)
         {
-            string createdPath = "";
-            if (!Directory.Exists(targetPath))
+            try
             {
-                var basePath = Environment.CurrentDirectory;
-                if (!targetPath.StartsWith('/'))
+                SplitTargetPathFile(targetPath, out string fileName, out string path);
+
+                string logPath = string.Empty;
+                if (!path.StartsWith("./"))
                 {
-                    targetPath = $"./{targetPath}";
+                    path = $"./{path}";
+                }
+                if (!Directory.Exists(path))
+                {
+                    var basePath = Environment.CurrentDirectory;
+
+                    Directory.CreateDirectory($"{basePath}{path}");
+                }
+                else if (Directory.Exists(path))
+                {
+                    logPath = path;
+                }
+                else
+                {
+                    logPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 }
 
-                createdPath = Directory.CreateDirectory($"{basePath}{targetPath}").FullName;
+                var lines = newFormattedText.Split("\n");
+
+                using (var outputFile = new StreamWriter(Path.Combine(path, fileName)))
+                {
+                    foreach (string line in lines)
+                        outputFile.WriteLine(line);
+                }
+                return logPath;
             }
-
-            string? logPath;
-
-            if (Directory.Exists(createdPath))
+            catch (Exception)
             {
-                logPath = targetPath;
+                throw;
             }
-            else
+
+        }
+
+        private static void SplitTargetPathFile(string targetPath, out string fileName, out string path)
+        {
+            try
             {
-                logPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                var logPathSplitted = targetPath.Split("/");
+                fileName = logPathSplitted.Last();
+                var pathLength = targetPath.Replace(fileName, "").Length - 1;
+                path = targetPath[..pathLength];
             }
-
-            var lines = newFormattedText.Split("\n");
-
-            using (var outputFile = new StreamWriter(logPath))
+            catch (Exception)
             {
-                foreach (string line in lines)
-                    outputFile.WriteLine(line);
+                throw;
             }
-
-            return logPath;
         }
 
         private static string ConvertToAgoraFormat(string response)
         {
-            var line = response.Split('\n');
-            var stringMount = HeaderMount();
-
-            foreach (var itemLine in line)
+            try
             {
-                if (!string.IsNullOrWhiteSpace(itemLine))
-                {
-                    var str = itemLine.Split('|');
+                var line = response.Split('\n');
+                var stringMount = HeaderMount();
 
-                    stringMount += $"\n\"MINHA CDN\" {str[3].Split(" ")[0].Replace("\"", "")} {str[1]} {str[3].Split(" ")[1]} {str[4].Split(".")[0]} {str[0]} {str[2]}";
+                foreach (var itemLine in line)
+                {
+                    if (!string.IsNullOrWhiteSpace(itemLine))
+                    {
+                        var str = itemLine.Split('|');
+
+                        stringMount += $"\n\"MINHA CDN\" {str[3].Split(" ")[0].Replace("\"", "")} {str[1]} {str[3].Split(" ")[1]} {str[4].Split(".")[0]} {str[0]} {str[2]}";
+                    }
+
                 }
 
+                stringMount = stringMount.Replace("INVALIDATE", "REFRESH_HIT");
+
+                return stringMount;
             }
-
-            stringMount = stringMount.Replace("INVALIDATE", "REFRESH_HIT");
-
-            return stringMount;
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         private static string HeaderMount()

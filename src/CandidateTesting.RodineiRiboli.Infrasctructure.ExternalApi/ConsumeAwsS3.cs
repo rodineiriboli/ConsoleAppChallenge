@@ -22,9 +22,9 @@ namespace CandidateTesting.RodineiRiboli.Infrasctructure.ExternalApi
                 response.EnsureSuccessStatusCode();
                 responseApi = await response.Content.ReadAsStringAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine(ex.Message);
+                throw;
             }
 
             return responseApi;

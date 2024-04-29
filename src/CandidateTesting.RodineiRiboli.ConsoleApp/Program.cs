@@ -12,7 +12,14 @@ namespace CandidateTesting.RodineiRiboli.ConsoleApp
             var serviceProvider = DependencyResolve.Configure();
             var convert = serviceProvider.GetRequiredService<IConvertLogFormat>();
 
-            await convert.ConvertLogs();
+            try
+            {
+                await convert.ConvertLogs();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"A aplicação foi finalizada com o seguinte erro: {ex.Message}");
+            }
         }
     }
 }
