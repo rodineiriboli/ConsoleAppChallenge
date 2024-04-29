@@ -5,11 +5,13 @@ VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CandidateTesting.RodineiRiboli.Core", "src\CandidateTesting.RodineiRiboli.Core\CandidateTesting.RodineiRiboli.Core.csproj", "{0B45D170-A07D-4E79-8B14-0CA8F3511D7D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CandidateTesting.RodineiRiboli.Infrastructure.IoC", "src\CandidateTesting.RodineiRiboli.Infrastructure.IoC\CandidateTesting.RodineiRiboli.Infrastructure.IoC.csproj", "{8025FE23-EA93-4554-A623-EC7F994476ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CandidateTesting.RodineiRiboli.Infrastructure.IoC", "src\CandidateTesting.RodineiRiboli.Infrastructure.IoC\CandidateTesting.RodineiRiboli.Infrastructure.IoC.csproj", "{8025FE23-EA93-4554-A623-EC7F994476ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CandidateTesting.RodineiRiboli.Infrasctructure.ExternalApi", "src\CandidateTesting.RodineiRiboli.Infrasctructure.ExternalApi\CandidateTesting.RodineiRiboli.Infrasctructure.ExternalApi.csproj", "{AD06D470-7958-4838-B8C5-231FEF5FED1A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CandidateTesting.RodineiRiboli.Infrasctructure.ExternalApi", "src\CandidateTesting.RodineiRiboli.Infrasctructure.ExternalApi\CandidateTesting.RodineiRiboli.Infrasctructure.ExternalApi.csproj", "{AD06D470-7958-4838-B8C5-231FEF5FED1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CandidateTesting.RodineiRiboli.ConsoleApp", "src\CandidateTesting.RodineiRiboli.ConsoleApp\CandidateTesting.RodineiRiboli.ConsoleApp.csproj", "{DEB6C366-EFD8-4938-A9D7-9AE8041BB6B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CandidateTesting.RodineiRiboli.ConsoleApp", "src\CandidateTesting.RodineiRiboli.ConsoleApp\CandidateTesting.RodineiRiboli.ConsoleApp.csproj", "{DEB6C366-EFD8-4938-A9D7-9AE8041BB6B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CandidateTesting.RodineiRiboli.Tests", "src\CandidateTesting.RodineiRiboli.Tests\CandidateTesting.RodineiRiboli.Tests.csproj", "{D9FC5BB7-015A-4DF5-9E35-97FA07CA5F1D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{DEB6C366-EFD8-4938-A9D7-9AE8041BB6B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEB6C366-EFD8-4938-A9D7-9AE8041BB6B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEB6C366-EFD8-4938-A9D7-9AE8041BB6B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9FC5BB7-015A-4DF5-9E35-97FA07CA5F1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9FC5BB7-015A-4DF5-9E35-97FA07CA5F1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9FC5BB7-015A-4DF5-9E35-97FA07CA5F1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9FC5BB7-015A-4DF5-9E35-97FA07CA5F1D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

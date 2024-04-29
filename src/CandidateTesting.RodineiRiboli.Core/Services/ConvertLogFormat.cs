@@ -86,24 +86,23 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
             {
                 SplitTargetPathFile(targetPath, out string fileName, out string path);
 
-                string logPath = string.Empty;
                 if (!path.StartsWith("./"))
                 {
                     path = $"./{path}";
                 }
+
                 if (!Directory.Exists(path))
                 {
-                    var basePath = Environment.CurrentDirectory;
+                    try
+                    {
+                        var basePath = Environment.CurrentDirectory;
 
-                    Directory.CreateDirectory($"{basePath}{path}");
-                }
-                else if (Directory.Exists(path))
-                {
-                    logPath = path;
-                }
-                else
-                {
-                    logPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                        Directory.CreateDirectory($"{basePath}{path}");
+                    }
+                    catch (Exception)
+                    {
+                        path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    }
                 }
 
                 var lines = newFormattedText.Split("\n");
@@ -113,7 +112,7 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
                     foreach (string line in lines)
                         outputFile.WriteLine(line);
                 }
-                return logPath;
+                return $"{path}/{fileName}";
             }
             catch (Exception)
             {
@@ -126,9 +125,18 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
         {
             try
             {
+                if (!targetPath.Contains(".txt"))
+                {
+                    fileName = "minhaCdn1.txt";
+                    path = targetPath.EndsWith('/') ? targetPath[..^1] : targetPath;
+                    return;
+                }
+
                 var logPathSplitted = targetPath.Split("/");
                 fileName = logPathSplitted.Last();
-                var pathLength = targetPath.Replace(fileName, "").Length - 1;
+
+                var leng = targetPath.Replace(fileName, "").Length - 1;
+                var pathLength = leng == -1 ? 0 : leng;
                 path = targetPath[..pathLength];
             }
             catch (Exception)

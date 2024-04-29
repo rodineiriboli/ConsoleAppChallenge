@@ -18,7 +18,7 @@ namespace CandidateTesting.RodineiRiboli.ConsoleApp
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"A aplicação foi finalizada com o seguinte erro: {ex.Message}");
+                Console.WriteLine($"A aplicação foi finalizada com o erro: {ex.Message}");
             }
         }
     }
