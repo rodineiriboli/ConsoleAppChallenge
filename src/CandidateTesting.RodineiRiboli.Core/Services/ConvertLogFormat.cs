@@ -1,5 +1,5 @@
-﻿using CandidateTesting.RodineiRiboli.Core.Interfaces;
-using System.IO;
+﻿using CandidateTesting.RodineiRiboli.Core.Enums;
+using CandidateTesting.RodineiRiboli.Core.Interfaces;
 
 namespace CandidateTesting.RodineiRiboli.Core.Services
 {
@@ -16,20 +16,11 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
         {
             HeadMount();
 
-            //var uri = InputUri();
-            (string command, string uri, string targetPath) = Input();
-
-            if (!command.Equals("convert"))
-            {
-                Console.WriteLine("Intrução inválida");
-            }
-
-
-            //var targetPath = GetTargetPath();
+            (var uri, var targetPath) = Input();
 
             var response = await _consumeAwsS3.GetLogMinhaCdn(uri);
 
-            string newFormattedText = ConvertToAgoraFormat(response);
+            var newFormattedText = ConvertToAgoraFormat(response);
 
             var filePath = WriteFile(newFormattedText, targetPath);
 
@@ -44,59 +35,46 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
             }
         }
 
-        private static (string command, string uri, string path) Input()
+        private static (string uri, string path) Input()
         {
             Console.WriteLine("\n\n * Informe o comando no seguinte formato \"comando URI caminho\", por exemplo:" +
                 "\n  \"convert http://logstorage.com/minhaCdn1.txt ./output/minhaCdn1.txt\" e pressione \"ENTER\" para posseguir\n");
 
-            var input = Console.ReadLine();
+            string input = Console.ReadLine() ?? "";
 
             do
             {
-                input = NewMethod(input);
-            } while (!input.Split(" ")[0].Equals("convert"));
+                input = CheckEntry(input);
+            } while (!input.Split(" ")[0].Equals(Commands.Convert));
 
-            var command = input.Split(" ")[0].Trim();
             var uri = input.Split(" ")[1].Trim();
             var path = input.Split(" ")[2].Trim();
 
-            return (command, uri, path);
+            return (uri, path);
         }
 
-        private static string NewMethod(string? input)
+        private static string CheckEntry(string input)
         {
-            while (string.IsNullOrWhiteSpace(input) || !input.Split(" ")[0].Equals("convert"))
+            var inputSplitted = input.Split(" ");
+
+            while (string.IsNullOrWhiteSpace(input)
+                || inputSplitted.Length != 3
+                || !inputSplitted[0].Equals(Commands.Convert)
+                || string.IsNullOrWhiteSpace(inputSplitted[1])
+                || string.IsNullOrWhiteSpace(inputSplitted[2]))
             {
                 Console.WriteLine("\n\n * É necessário informar um comando válido e pressionar \"ENTER\" para prosseguir.\n" +
-                    "  Verifique a primeira instrução informada.\n");
-                input = Console.ReadLine();
+                    "   Verifique a primeira instrução informada.\n");
+                input = Console.ReadLine() ?? "";
+                
+                inputSplitted = input.Split(" ");
             }
 
             return input;
         }
 
-        //private string[,,] InputUri2()
-        //{
-        //    string [command, uri, path] = ("", "", "");
-        //    Console.WriteLine("\n\n * Informe a URI do arquivo de log a ser convertido e pressione \"ENTER\"");
-        //    var uri = Console.ReadLine();
-
-        //    while (string.IsNullOrWhiteSpace(uri))
-        //    {
-        //        Console.WriteLine("\n\n * É necessário informar a URI do arquivo de log a ser convertido e pressionar \"ENTER\" para prosseguir");
-        //        uri = Console.ReadLine();
-        //    }
-
-        //    return uri.Trim();
-        //}
-
         private static string WriteFile(string newFormattedText, string targetPath)
         {
-
-
-
-            //string fullPath = Path.GetFullPath(targetPath, basePath);
-
             string createdPath = "";
             if (!Directory.Exists(targetPath))
             {
@@ -108,11 +86,6 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
 
                 createdPath = Directory.CreateDirectory($"{basePath}{targetPath}").FullName;
             }
-
-
-            //var created = Environment.GetFolderPath(targetPath);// Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)targetPath);
-
-
 
             string? logPath;
 
@@ -127,7 +100,7 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
 
             var lines = newFormattedText.Split("\n");
 
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(logPath, "minhaCdn1.txt")))
+            using (var outputFile = new StreamWriter(logPath))
             {
                 foreach (string line in lines)
                     outputFile.WriteLine(line);
@@ -161,36 +134,7 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
         {
             var date = DateTime.Now;
 
-            return $"#Version: 1.0\r\n#Date: {date}\r\n#Fields: provider http-method status-code uri-path time-taken response-size cache-status";
-        }
-
-        private static string GetTargetPath()
-        {
-            Console.WriteLine("\n\n * Informe o caminho onde deseja que o arquivo de log seja salvo e pressione \"ENTER\"");
-            var targetPath = Console.ReadLine();
-
-            while (string.IsNullOrWhiteSpace(targetPath))
-            {
-                Console.WriteLine("\n\n * É necessário informar o caminho onde deseja que o arquivo de log seja salvo e pressionar \"ENTER\" para prosseguir");
-                Console.WriteLine("\n\n * Por exemplo ./MeusLogsConvertidos");
-                targetPath = Console.ReadLine();
-            }
-
-            return targetPath.Trim();
-        }
-
-        private static string InputUri()
-        {
-            Console.WriteLine("\n\n * Informe a URI do arquivo de log a ser convertido e pressione \"ENTER\"");
-            var uri = Console.ReadLine();
-
-            while (string.IsNullOrWhiteSpace(uri))
-            {
-                Console.WriteLine("\n\n * É necessário informar a URI do arquivo de log a ser convertido e pressionar \"ENTER\" para prosseguir");
-                uri = Console.ReadLine();
-            }
-
-            return uri.Trim();
+            return $"#Version: 1.0\n#Date: {date}\n#Fields: provider http-method status-code uri-path time-taken response-size cache-status";
         }
 
         private static void HeadMount()
