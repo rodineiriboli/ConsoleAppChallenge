@@ -20,6 +20,8 @@ namespace CandidateTesting.RodineiRiboli.ConsoleApp
             {
                 Console.WriteLine($"A aplicação foi finalizada com o erro: {ex.Message}");
             }
+            Console.WriteLine("\n\nPressione alguma tecla para sair");
+            Console.ReadKey();
         }
     }
 }

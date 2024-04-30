@@ -13,7 +13,7 @@ namespace CandidateTesting.RodineiRiboli.Infrasctructure.ExternalApi
 
         public async Task<string> GetLogMinhaCdn(string uri)
         {
-            var responseApi = string.Empty;
+            string? responseApi;
             try
             {
                 var httpClient = _httpClientFactory.CreateClient();

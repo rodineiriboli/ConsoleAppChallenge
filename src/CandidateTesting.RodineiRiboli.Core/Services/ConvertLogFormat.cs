@@ -1,5 +1,6 @@
 ﻿using CandidateTesting.RodineiRiboli.Core.Enums;
 using CandidateTesting.RodineiRiboli.Core.Interfaces;
+using System.Globalization;
 
 namespace CandidateTesting.RodineiRiboli.Core.Services
 {
@@ -16,7 +17,7 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
         {
             try
             {
-                HeadMount();
+                HeaderConsoleMount();
 
                 (var uri, var targetPath) = Input();
 
@@ -42,7 +43,7 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
             }
         }
 
-        private static (string uri, string path) Input()
+        public (string uri, string path) Input()
         {
             Console.WriteLine("\n\n * Informe o comando no seguinte formato \"comando URI caminho\", por exemplo:" +
                 "\n  \"convert http://logstorage.com/minhaCdn1.txt ./output/minhaCdn1.txt\" e pressione \"ENTER\" para posseguir\n");
@@ -60,7 +61,7 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
             return (uri, path);
         }
 
-        private static string CheckEntry(string input)
+        public string CheckEntry(string input)
         {
             var inputSplitted = input.Split(" ");
 
@@ -145,27 +146,16 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
             }
         }
 
-        private static string ConvertToAgoraFormat(string response)
+        public string ConvertToAgoraFormat(string response)
         {
             try
             {
-                var line = response.Split('\n');
-                var stringMount = HeaderMount();
+                var headerMount = HeaderFileMount();
+                var body = BodyFileMount(response);
 
-                foreach (var itemLine in line)
-                {
-                    if (!string.IsNullOrWhiteSpace(itemLine))
-                    {
-                        var str = itemLine.Split('|');
+                var stringFile = string.Concat(headerMount, body);
 
-                        stringMount += $"\n\"MINHA CDN\" {str[3].Split(" ")[0].Replace("\"", "")} {str[1]} {str[3].Split(" ")[1]} {str[4].Split(".")[0]} {str[0]} {str[2]}";
-                    }
-
-                }
-
-                stringMount = stringMount.Replace("INVALIDATE", "REFRESH_HIT");
-
-                return stringMount;
+                return stringFile;
             }
             catch (Exception)
             {
@@ -173,14 +163,35 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
             }
         }
 
-        private static string HeaderMount()
+        public string BodyFileMount(string response)
+        {
+            var ci = CultureInfo.GetCultureInfo("en-US");
+            var line = response.Split('\n');
+            var stringMount = "";
+            foreach (var itemLine in line)
+            {
+                if (!string.IsNullOrWhiteSpace(itemLine))
+                {
+                    var str = itemLine.Split('|');
+
+                    stringMount += $"\n\"MINHA CDN\" {str[3].Split(" ")[0].Replace("\"", "")} {str[1]} {str[3].Split(" ")[1]} {Convert.ToInt32(Convert.ToDecimal(str[4], ci))} {str[0]} {str[2]}";
+                }
+
+            }
+
+            stringMount = stringMount.Replace("INVALIDATE", "REFRESH_HIT");
+
+            return stringMount;
+        }
+
+        private static string HeaderFileMount()
         {
             var date = DateTime.Now;
 
             return $"#Version: 1.0\n#Date: {date}\n#Fields: provider http-method status-code uri-path time-taken response-size cache-status";
         }
 
-        private static void HeadMount()
+        private static void HeaderConsoleMount()
         {
             Console.WriteLine("_____________________________________________________________________");
             Console.WriteLine("\n\t\tWelcome to the iTaaS Solution Convert");
