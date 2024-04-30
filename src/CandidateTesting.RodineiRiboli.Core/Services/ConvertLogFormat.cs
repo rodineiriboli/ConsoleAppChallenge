@@ -119,7 +119,6 @@ namespace CandidateTesting.RodineiRiboli.Core.Services
             {
                 throw;
             }
-
         }
 
         private static void SplitTargetPathFile(string targetPath, out string fileName, out string path)
